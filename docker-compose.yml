@@ -1,0 +1,29 @@
+version: '2.2'
+
+networks:
+  testdb:
+
+services:
+  postgres:
+    container_name: testdb-postgres
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_USER: testdb
+      POSTGRES_PASSWORD: testdb
+      POSTGRES_DB: testdb
+    networks:
+      - testdb
+  postgres-backup:
+    image: helfenkannjeder/postgresbackup
+    environment:
+      PGHOST: testdb-postgres
+      PGPORT: 5432
+      PGUSER: testdb
+      PGPASSWORD: testdb
+      PGDATABASE: testdb
+      AZCOPY_DESTINATION_URL: 'https://invalidsampleurl.blob.core.windows.net/dev-db/'
+      AZCOPY_SAS_TOKEN: '?sv=2019-10-10&ss=b&srt=o&sp=rwdlac&se=2020-06-15T06:45:28Z&st=2020-06-14T22:45:28Z&spr=https&sig=INVALID_SAMPLE_TOKEN'
+    networks:
+      - testdb
+    depends_on:
+      - postgres

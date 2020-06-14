@@ -1,0 +1,66 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 0 * * *"
+
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Replace
+
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          containers:
+            - name: postgres-azure-backup
+              image: helfenkannjedercontainer.azurecr.io/backup.postgres
+              imagePullPolicy: IfNotPresent
+
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 200Mi
+                requests:
+                  cpu: 50m
+                  memory: 50Mi
+
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: azure-backup-config
+                      key: azure.backup.helfomat.host
+                - name: PGPORT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: azure-backup-config
+                      key: azure.backup.helfomat.port
+                - name: PGUSER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: helfomat-db-secret
+                      key: helfomat.postgres.user
+                - name: PGPASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      name: helfomat-db-secret
+                      key: helfomat.postgres.password
+                - name: PGDATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: helfomat-db-config
+                      key: helfomat.postgres.db
+                - name: AZCOPY_DESTINATION_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: azure-backup-config
+                      key: azure.backup.destination.url
+                - name: AZCOPY_SAS_TOKEN
+                  valueFrom:
+                    configMapKeyRef:
+                      name: azure-backup-config
+                      key: azure.backup.sas.token
+          restartPolicy: Never
