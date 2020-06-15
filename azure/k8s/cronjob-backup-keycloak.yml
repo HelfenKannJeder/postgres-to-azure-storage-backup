@@ -1,9 +1,9 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: postgres-backup-helfomat
+  name: postgres-backup-keycloak
 spec:
-  schedule: "0 0 * * *"
+  schedule: "15 0 * * *"
 
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -32,27 +32,27 @@ spec:
                   valueFrom:
                     configMapKeyRef:
                       name: azure-backup-config
-                      key: azure.backup.helfomat.host
+                      key: azure.backup.keycloak.host
                 - name: PGPORT
                   valueFrom:
                     configMapKeyRef:
                       name: azure-backup-config
-                      key: azure.backup.helfomat.port
+                      key: azure.backup.keycloak.port
                 - name: PGUSER
                   valueFrom:
                     secretKeyRef:
-                      name: helfomat-db-secret
-                      key: helfomat.postgres.user
+                      name: keycloak-db-secret
+                      key: keycloak.postgres.user
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: helfomat-db-secret
-                      key: helfomat.postgres.password
+                      name: keycloak-db-secret
+                      key: keycloak.postgres.password
                 - name: PGDATABASE
                   valueFrom:
                     configMapKeyRef:
-                      name: helfomat-db-config
-                      key: helfomat.postgres.db
+                      name: keycloak-db-config
+                      key: keycloak.postgres.db
                 - name: AZCOPY_DESTINATION_URL
                   valueFrom:
                     configMapKeyRef:
